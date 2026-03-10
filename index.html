@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Unit — Test Yantra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0A0A08;--white:#FAFAF7;--off:#F3F2EE;--mid:#52524E;--dim:#A8A89F;--rule:rgba(0,0,0,0.09);
+  --saber:#D97706;--forge:#2563EB;--qantam:#059669;--ai:#7C3AED;
+  --serif:'Playfair Display',serif;--mono:'DM Mono',monospace;--sans:'Syne',sans-serif;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--white);color:var(--ink);font-family:var(--mono);overflow-x:hidden}
+
+/* ─ UTILITIES ─ */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.label{font-size:10px;letter-spacing:4px;color:var(--dim);text-transform:uppercase}
+.serif{font-family:var(--serif)}
+.rule{width:100%;height:1px;background:var(--rule)}
+
+/* ─ NAV ─ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 52px;height:52px;
+  background:rgba(250,250,247,0.88);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--rule);
+}
+.nav-id{display:flex;align-items:center;gap:12px}
+.nav-wordmark{font-family:var(--sans);font-weight:800;font-size:13px;letter-spacing:3px}
+.nav-divider{width:1px;height:16px;background:var(--rule)}
+.nav-sub{font-size:10px;letter-spacing:2px;color:var(--dim)}
+.nav-links{display:flex;gap:28px}
+.nav-links a{font-size:10px;letter-spacing:2px;color:var(--mid);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{
+  font-size:10px;letter-spacing:2px;padding:7px 16px;
+  border:1px solid var(--ink);border-radius:2px;color:var(--ink);
+  text-decoration:none;transition:all .2s;background:transparent;cursor:pointer;
+  font-family:var(--mono);
+}
+.nav-cta:hover{background:var(--ink);color:var(--white)}
+
+/* ─ HERO ─ */
+.hero{
+  min-height:100vh;padding:52px 0 0;
+  display:grid;grid-template-rows:1fr auto;
+  position:relative;
+}
+.hero-inner{
+  display:grid;grid-template-columns:1fr 1fr;
+  border-bottom:1px solid var(--rule);
+}
+.hero-left{
+  padding:80px 52px 72px;
+  border-right:1px solid var(--rule);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.hero-right{
+  padding:80px 52px 72px;
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.hero-eyebrow{margin-bottom:32px}
+.hero-h1{
+  font-family:var(--serif);
+  font-size:clamp(48px,5.5vw,78px);
+  line-height:1.05;letter-spacing:-2px;
+  font-weight:900;margin-bottom:0;
+}
+.hero-h1 em{font-style:italic;color:var(--mid)}
+.hero-desc{
+  font-size:13px;color:var(--mid);line-height:1.9;
+  max-width:420px;margin-top:40px;
+}
+.hero-meta{
+  display:flex;gap:0;border-top:1px solid var(--rule);margin-top:48px;padding-top:32px;
+}
+.hero-stat{flex:1;padding-right:24px;border-right:1px solid var(--rule)}
+.hero-stat:last-child{border-right:none;padding-right:0;padding-left:24px}
+.hero-stat-n{
+  font-family:var(--serif);font-size:42px;font-weight:700;line-height:1;
+  margin-bottom:6px;
+}
+.hero-stat-l{font-size:9px;letter-spacing:3px;color:var(--dim)}
+
+/* Right side of hero */
+.hero-product-list{display:flex;flex-direction:column;gap:0}
+.hero-product{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 0;border-bottom:1px solid var(--rule);
+  transition:all .25s;cursor:default;
+}
+.hero-product:last-child{border-bottom:none}
+.hero-product:hover .hp-name{transform:translateX(6px)}
+.hp-left{display:flex;align-items:center;gap:16px}
+.hp-index{font-size:10px;color:var(--dim);width:20px}
+.hp-name{
+  font-family:var(--sans);font-weight:800;font-size:18px;letter-spacing:1px;
+  transition:transform .25s;
+}
+.hp-tagline{font-size:11px;color:var(--mid);margin-top:2px}
+.hp-badge{
+  font-size:9px;letter-spacing:2px;padding:4px 10px;
+  border-radius:2px;border:1px solid currentColor;
+  white-space:nowrap;
+}
+.hp-dot{
+  width:7px;height:7px;border-radius:50%;
+  animation:hpulse 2s infinite;
+}
+@keyframes hpulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+
+.hero-footnote{
+  padding:20px 52px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--rule);
+}
+.hero-footnote-left{font-size:10px;color:var(--dim);letter-spacing:2px}
+.hero-ticker{
+  display:flex;gap:24px;align-items:center;
+}
+.ticker-item{
+  font-size:10px;color:var(--dim);letter-spacing:1px;
+  display:flex;align-items:center;gap:6px;
+}
+.ticker-dot{width:5px;height:5px;border-radius:50%}
+
+/* ─ SECTION SHELL ─ */
+.section{padding:100px 52px}
+.section-header{
+  display:grid;grid-template-columns:200px 1fr;
+  gap:48px;align-items:start;
+  margin-bottom:72px;
+  padding-bottom:48px;border-bottom:1px solid var(--rule);
+}
+.section-h2{
+  font-family:var(--serif);
+  font-size:clamp(36px,4vw,56px);
+  line-height:1.1;letter-spacing:-1.5px;
+  font-weight:900;
+}
+.section-h2 em{font-style:italic;color:var(--mid)}
+.section-intro{font-size:13px;color:var(--mid);line-height:1.9;max-width:520px;margin-top:8px}
+
+/* ─ PROBLEM ─ */
+.problem-section{background:var(--ink);color:var(--white)}
+.problem-section .label{color:#444}
+.problem-section .rule{background:rgba(255,255,255,0.08)}
+.problem-section .section-h2 em{color:#555}
+.problem-section .section-intro{color:#666}
+.problem-section .section-header{border-bottom-color:rgba(255,255,255,0.08)}
+.problem-cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.06);
+}
+.problem-card{
+  background:var(--ink);padding:40px 32px;
+  transition:background .3s;
+}
+.problem-card:hover{background:#111}
+.p-num{
+  font-family:var(--serif);font-size:64px;font-weight:900;
+  color:rgba(255,255,255,0.06);line-height:1;margin-bottom:24px;
+}
+.p-title{
+  font-family:var(--sans);font-weight:700;font-size:15px;
+  letter-spacing:.5px;margin-bottom:12px;
+}
+.p-body{font-size:12px;color:#666;line-height:1.9}
+
+/* ─ PRODUCTS ─ */
+.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
+.product-block{
+  background:var(--white);padding:52px 44px;
+  position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.product-block:hover{background:var(--off)}
+.pb-accent{
+  position:absolute;top:0;left:0;width:3px;height:100%;
+}
+.pb-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+.pb-meta{}
+.pb-tag{font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:8px}
+.pb-name{
+  font-family:var(--sans);font-weight:800;
+  font-size:28px;letter-spacing:1px;
+}
+.pb-status{
+  font-size:9px;letter-spacing:2px;
+  padding:5px 10px;border-radius:2px;
+  display:flex;align-items:center;gap:6px;
+  border:1px solid var(--rule);
+}
+.pb-tagline{
+  font-family:var(--serif);font-style:italic;
+  font-size:17px;color:var(--mid);
+  margin-bottom:20px;line-height:1.5;
+}
+.pb-desc{font-size:12px;color:var(--mid);line-height:1.9;margin-bottom:28px}
+.pb-features{display:flex;flex-direction:column;gap:0}
+.pb-feature{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-top:1px solid var(--rule);
+  font-size:11px;color:var(--mid);
+}
+.pb-feature::before{content:'→';color:var(--dim);font-size:11px}
+.pb-connect{
+  margin-top:28px;padding-top:20px;border-top:1px solid var(--rule);
+  font-size:10px;letter-spacing:2px;color:var(--dim);
+  display:flex;align-items:center;gap:8px;
+}
+
+/* ─ HOW ─ */
+.how-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0;border:1px solid var(--rule);
+}
+.how-step{
+  padding:48px 44px;border-right:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+}
+.how-step:nth-child(2n){border-right:none}
+.how-step:nth-child(3),.how-step:nth-child(4){border-bottom:none}
+.how-n{
+  font-family:var(--serif);font-size:80px;font-weight:900;
+  line-height:1;color:var(--off);margin-bottom:20px;
+}
+.how-title{
+  font-family:var(--sans);font-weight:700;
+  font-size:17px;margin-bottom:12px;letter-spacing:.5px;
+}
+.how-body{font-size:12px;color:var(--mid);line-height:1.9}
+.how-tag{
+  display:inline-block;margin-top:20px;
+  font-size:9px;letter-spacing:2px;padding:4px 10px;
+  border:1px solid var(--rule);color:var(--dim);border-radius:2px;
+}
+
+/* ─ BUILD STATUS ─ */
+.status-section{background:var(--off)}
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule)}
+.status-col{
+  padding:36px 28px;border-right:1px solid var(--rule);background:var(--white);
+}
+.status-col:last-child{border-right:none}
+.sc-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--rule);
+}
+.sc-name{font-family:var(--sans);font-weight:800;font-size:16px;letter-spacing:1px}
+.sc-phase{font-size:9px;letter-spacing:2px;color:var(--dim);margin-top:4px}
+.sc-pct{font-family:var(--serif);font-size:36px;font-weight:700;line-height:1}
+.milestone{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:9px 0;border-bottom:1px solid var(--rule);
+}
+.milestone:last-child{border-bottom:none}
+.ms-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.ms-dot.done{background:#059669}
+.ms-dot.now{background:#D97706;animation:hpulse 1.5s infinite}
+.ms-dot.next{background:#E5E7EB}
+.ms-text{flex:1;font-size:10px;line-height:1.6}
+.ms-text.done{color:var(--ink)}
+.ms-text.now{color:var(--ink);font-weight:500}
+.ms-text.next{color:var(--dim)}
+.ms-when{font-size:9px;color:var(--dim);white-space:nowrap;margin-top:2px}
+
+/* ─ VISION ─ */
+.vision-section{
+  background:var(--ink);color:var(--white);
+  padding:120px 52px;
+}
+.vision-inner{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;align-items:center;
+  margin-bottom:80px;
+}
+.vision-h{
+  font-family:var(--serif);
+  font-size:clamp(40px,4.5vw,60px);
+  line-height:1.1;letter-spacing:-2px;font-weight:900;
+}
+.vision-h em{font-style:italic;color:#555}
+.vision-right{}
+.vision-p{font-size:13px;color:#666;line-height:1.9;margin-bottom:24px}
+.vision-pillars{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.06);margin-top:80px;
+}
+.pillar{background:var(--ink);padding:36px 24px;transition:background .3s}
+.pillar:hover{background:#0F0F0D}
+.pi-num{
+  font-family:var(--serif);font-size:48px;font-weight:900;
+  color:rgba(255,255,255,0.06);line-height:1;margin-bottom:16px;
+}
+.pi-title{
+  font-family:var(--sans);font-weight:700;font-size:13px;
+  letter-spacing:2px;margin-bottom:10px;
+}
+.pi-body{font-size:11px;color:#555;line-height:1.8}
+
+/* ─ ROADMAP ─ */
+.roadmap-row{
+  display:grid;grid-template-columns:180px 1fr 1fr 1fr 1fr;
+  gap:0;align-items:stretch;
+  border:1px solid var(--rule);
+}
+.rm-label-col{
+  padding:28px 24px;border-right:1px solid var(--rule);
+  display:flex;flex-direction:column;justify-content:center;
+  background:var(--off);
+}
+.rm-q{font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:4px}
+.rm-period{font-family:var(--sans);font-weight:700;font-size:14px}
+.rm-col{
+  padding:28px 24px;border-right:1px solid var(--rule);
+  border-top:1px solid var(--rule);
+}
+.rm-col:last-child{border-right:none}
+.rm-col.now{background:#FAFFF8;border-top:3px solid var(--qantam)}
+.rm-col.now .rm-col-label{color:var(--qantam)}
+.rm-col-label{font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:12px}
+.rm-item{
+  font-size:11px;color:var(--mid);padding:5px 0;
+  border-bottom:1px solid var(--rule);line-height:1.5;
+  display:flex;gap:8px;align-items:flex-start;
+}
+.rm-item:last-child{border-bottom:none}
+.rm-item::before{content:'·';color:var(--dim);flex-shrink:0}
+
+/* ─ FOOTER ─ */
+.footer{
+  border-top:1px solid var(--rule);
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+}
+.footer-cell{padding:40px 52px;border-right:1px solid var(--rule)}
+.footer-cell:last-child{border-right:none}
+.footer-wordmark{
+  font-family:var(--sans);font-weight:800;font-size:16px;
+  letter-spacing:3px;margin-bottom:8px;
+}
+.footer-tagline{font-size:11px;color:var(--mid);line-height:1.7;max-width:260px}
+.footer-col-label{font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:16px}
+.footer-product{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--rule);
+  font-size:11px;
+}
+.footer-product:last-child{border-bottom:none}
+.footer-meta{font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:24px}
+
+/* ─ SCROLL REVEAL ─ */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.up{opacity:1;transform:none}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .section{padding:72px 20px}
+  .hero-inner,.section-header,.how-grid,.vision-inner,.products-grid{grid-template-columns:1fr}
+  .hero-left{border-right:none;padding:60px 20px 40px}
+  .hero-right{padding:40px 20px 60px}
+  .hero-footnote{padding:20px}
+  .hero-meta{flex-wrap:wrap;gap:20px}
+  .hero-stat{border-right:none;padding:0}
+  .problem-cards,.status-grid,.vision-pillars,.roadmap-row{grid-template-columns:1fr}
+  .footer{grid-template-columns:1fr}
+  .footer-cell{border-right:none;padding:32px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-id">
+    <div class="nav-wordmark">AI UNIT</div>
+    <div class="nav-divider"></div>
+    <div class="nav-sub">TEST YANTRA</div>
+  </div>
+  <div class="nav-links">
+    <a href="#products">Platforms</a>
+    <a href="#how">How It Works</a>
+    <a href="#status">Status</a>
+    <a href="#roadmap">Roadmap</a>
+  </div>
+  <a href="#status" class="nav-cta">BUILD STATUS →</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+
+    <!-- LEFT: Headline -->
+    <div class="hero-left">
+      <div>
+        <div class="label hero-eyebrow">Test Yantra · AI Unit · Est. 2026</div>
+        <h1 class="hero-h1">
+          We are building<br/>
+          the intelligence<br/>
+          layer <em>training<br/>
+          never had.</em>
+        </h1>
+        <p class="hero-desc">
+          A focused unit inside Test Yantra constructing four interconnected AI platforms — from knowledge infrastructure to intelligent content generation to student-facing learning tools. Starting with QSpiders. Designed for every training organisation.
+        </p>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-stat">
+          <div class="hero-stat-n" style="color:var(--saber)">4</div>
+          <div class="hero-stat-l">AI PLATFORMS</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-n" style="color:var(--forge)">8</div>
+          <div class="hero-stat-l">COURSE DOMAINS</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-n" style="color:var(--qantam)">15+</div>
+          <div class="hero-stat-l">YEARS KNOWLEDGE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Product list -->
+    <div class="hero-right">
+      <div class="label" style="margin-bottom:28px">THE ECOSYSTEM</div>
+      <div class="hero-product-list">
+
+        <div class="hero-product">
+          <div class="hp-left">
+            <div class="hp-index">01</div>
+            <div>
+              <div class="hp-name" style="color:var(--saber)">SABER</div>
+              <div class="hp-tagline">Knowledge Infrastructure Framework</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="hp-dot" style="background:var(--saber)"></div>
+            <span class="hp-badge" style="color:var(--saber)">BUILDING</span>
+          </div>
+        </div>
+
+        <div class="hero-product">
+          <div class="hp-left">
+            <div class="hp-index">02</div>
+            <div>
+              <div class="hp-name" style="color:var(--forge)">SKILLFORGE</div>
+              <div class="hp-tagline">Trainer Upskilling & Content Platform</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="hp-dot" style="background:var(--forge)"></div>
+            <span class="hp-badge" style="color:var(--forge)">DESIGNING</span>
+          </div>
+        </div>
+
+        <div class="hero-product">
+          <div class="hp-left">
+            <div class="hp-index">03</div>
+            <div>
+              <div class="hp-name" style="color:var(--qantam)">QANTAM</div>
+              <div class="hp-tagline">Student Intelligence Platform</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="hp-dot" style="background:var(--qantam)"></div>
+            <span class="hp-badge" style="color:var(--qantam)">IN PROGRESS</span>
+          </div>
+        </div>
+
+        <div class="hero-product">
+          <div class="hp-left">
+            <div class="hp-index">04</div>
+            <div>
+              <div class="hp-name" style="color:var(--ai)">AI CONTENT</div>
+              <div class="hp-tagline">Domain Content Generation Engine</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="hp-dot" style="background:var(--ai);animation:none;opacity:1"></div>
+            <span class="hp-badge" style="color:var(--ai)">ACTIVE</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quote -->
+      <div style="margin-top:40px;padding:28px;background:var(--off);border-left:3px solid var(--ink)">
+        <div style="font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.6;color:var(--mid);margin-bottom:10px">
+          "The knowledge exists. The framework to unlock it didn't. So we're building it."
+        </div>
+        <div class="label">PRADEEP · FOUNDER, TEST YANTRA</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footnote bar -->
+  <div class="hero-footnote">
+    <div class="hero-footnote-left">BANGALORE, INDIA · 2026</div>
+    <div class="hero-ticker">
+      <div class="ticker-item"><div class="ticker-dot" style="background:var(--qantam)"></div>E2E GPU · ACTIVE</div>
+      <div class="ticker-item"><div class="ticker-dot" style="background:var(--saber)"></div>SABER v0.1 · BUILDING</div>
+      <div class="ticker-item"><div class="ticker-dot" style="background:var(--ai)"></div>DATASET GEN · RUNNING</div>
+      <div class="ticker-item"><div class="ticker-dot" style="background:var(--forge)"></div>QANTAM INFRA · CONFIRMED</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PROBLEM
+════════════════════════════════════════════ -->
+<section class="section problem-section">
+  <div class="section-header reveal">
+    <div class="label">THE PROBLEM</div>
+    <div>
+      <h2 class="section-h2">
+        15 years of expertise.<br/>
+        <em>Zero infrastructure</em><br/>
+        to hold it.
+      </h2>
+      <p class="section-intro">Training organisations carry enormous domain knowledge — and have no system to capture, structure, or scale it with AI.</p>
+    </div>
+  </div>
+  <div class="problem-cards">
+    <div class="problem-card reveal reveal-d1">
+      <div class="p-num">01</div>
+      <div class="p-title">Knowledge disappears with people</div>
+      <div class="p-body">When a senior trainer leaves, their years of practical insight — the analogies, the edge cases, the interview patterns — walk out with them. There is no system to capture it.</div>
+    </div>
+    <div class="problem-card reveal reveal-d2">
+      <div class="p-num">02</div>
+      <div class="p-title">Generic AI gives generic answers</div>
+      <div class="p-body">ChatGPT doesn't know QSpiders curriculum, style, or standards. It gives the same answer to every student regardless of their course, level, or what company they're interviewing with.</div>
+    </div>
+    <div class="problem-card reveal reveal-d3">
+      <div class="p-num">03</div>
+      <div class="p-title">Content creation doesn't compound</div>
+      <div class="p-body">The same concepts get re-explained by different trainers thousands of times. No institutional memory. No compounding value. The organisation is always starting from scratch.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PRODUCTS
+════════════════════════════════════════════ -->
+<section id="products" class="section" style="padding-top:100px;padding-bottom:0">
+  <div class="section-header reveal">
+    <div class="label">THE PLATFORMS</div>
+    <div>
+      <h2 class="section-h2">Four platforms.<br/><em>One connected</em><br/>intelligence.</h2>
+      <p class="section-intro">Each solves a distinct problem. Together they form a complete AI operating system for any training organisation.</p>
+    </div>
+  </div>
+</section>
+
+<div class="products-grid">
+
+  <!-- SABER -->
+  <div class="product-block reveal">
+    <div class="pb-accent" style="background:var(--saber)"></div>
+    <div class="pb-header">
+      <div>
+        <div class="pb-tag">01 · KNOWLEDGE INFRASTRUCTURE</div>
+        <div class="pb-name" style="color:var(--saber)">SABER</div>
+      </div>
+      <div class="pb-status" style="color:var(--saber)">
+        <div class="ms-dot now" style="background:var(--saber)"></div>
+        BUILDING · v0.1
+      </div>
+    </div>
+    <div class="pb-tagline">"Saber" — Spanish for "to know." The brain behind everything.</div>
+    <div class="pb-desc">Ingests any knowledge source — videos, PDFs, WhatsApp exports, live sessions — and fine-tunes a domain-specific LLM on your content. Each organisation gets their own isolated, continuously improving model.</div>
+    <div class="pb-features">
+      <div class="pb-feature">7-layer pipeline: Ingest → Process → Knowledge Graph → Train → Registry → Serve → Feedback</div>
+      <div class="pb-feature">QLoRA fine-tuning on E2E GPU infrastructure</div>
+      <div class="pb-feature">Self-improving feedback loop — every interaction enriches the model</div>
+      <div class="pb-feature">Multi-org, isolated namespaces — built for scale</div>
+    </div>
+    <div class="pb-connect" style="color:var(--saber)">↓ POWERS SKILLFORGE, QANTAM, AI CONTENT</div>
+  </div>
+
+  <!-- SKILLFORGE -->
+  <div class="product-block reveal reveal-d1">
+    <div class="pb-accent" style="background:var(--forge)"></div>
+    <div class="pb-header">
+      <div>
+        <div class="pb-tag">02 · TRAINER PLATFORM</div>
+        <div class="pb-name" style="color:var(--forge)">SKILLFORGE</div>
+      </div>
+      <div class="pb-status" style="color:var(--forge)">
+        <div class="ms-dot now" style="background:var(--forge)"></div>
+        DESIGNING
+      </div>
+    </div>
+    <div class="pb-tagline">Forge better trainers. Generate better content. Faster.</div>
+    <div class="pb-desc">Turns SABER's knowledge into training content automatically — lecture notes, lab exercises, assessments, slide decks. Also upskills trainers themselves, keeping them current with AI tools and modern pedagogy.</div>
+    <div class="pb-features">
+      <div class="pb-feature">AI-generated course content in QSpiders house style</div>
+      <div class="pb-feature">Lab exercises, assessment papers, and certification prep — automated</div>
+      <div class="pb-feature">Trainer upskilling modules — AI literacy, new tech, pedagogy</div>
+      <div class="pb-feature">Content review workflow — trainers approve, not create from scratch</div>
+    </div>
+    <div class="pb-connect" style="color:var(--forge)">↓ FEEDS CONTENT INTO QANTAM</div>
+  </div>
+
+  <!-- QANTAM -->
+  <div class="product-block reveal">
+    <div class="pb-accent" style="background:var(--qantam)"></div>
+    <div class="pb-header">
+      <div>
+        <div class="pb-tag">03 · STUDENT PLATFORM</div>
+        <div class="pb-name" style="color:var(--qantam)">QANTAM</div>
+      </div>
+      <div class="pb-status" style="color:var(--qantam)">
+        <div class="ms-dot now" style="background:var(--qantam)"></div>
+        IN PROGRESS
+      </div>
+    </div>
+    <div class="pb-tagline">Quantum learning, personalised to each student.</div>
+    <div class="pb-desc">The student-facing intelligence layer. Powered by SABER. Delivers personalised learning paths, instant 24/7 doubt resolution, mock interviews calibrated to actual company hiring patterns, and placement readiness scoring.</div>
+    <div class="pb-features">
+      <div class="pb-feature">Domain-specific AI — answers sound like QSpiders, not Google</div>
+      <div class="pb-feature">Personalised learning paths based on individual knowledge gaps</div>
+      <div class="pb-feature">Mock interviews aligned to TCS, Infosys, Wipro, startup patterns</div>
+      <div class="pb-feature">Placement readiness score with specific gap identification</div>
+    </div>
+    <div class="pb-connect" style="color:var(--qantam)">↑ CONSUMES SABER + SKILLFORGE</div>
+  </div>
+
+  <!-- AI CONTENT -->
+  <div class="product-block reveal reveal-d1">
+    <div class="pb-accent" style="background:var(--ai)"></div>
+    <div class="pb-header">
+      <div>
+        <div class="pb-tag">04 · CONTENT ENGINE</div>
+        <div class="pb-name" style="color:var(--ai)">AI CONTENT</div>
+      </div>
+      <div class="pb-status" style="color:var(--ai)">
+        <div class="ms-dot" style="background:var(--ai);animation:none;opacity:1"></div>
+        ACTIVE
+      </div>
+    </div>
+    <div class="pb-tagline">Domain knowledge, generated at scale. In your style.</div>
+    <div class="pb-desc">Generates training material across all 8 QSpiders domains — automatically, in QSpiders trainer style, at every difficulty level. The seed dataset for SABER's first training run is being generated right now.</div>
+    <div class="pb-features">
+      <div class="pb-feature">5,000+ Q&A pairs across Manual Testing, Selenium, Java, API, Agile, SQL, DevOps, Python</div>
+      <div class="pb-feature">Beginner → Intermediate → Advanced — all levels covered</div>
+      <div class="pb-feature">Interview-ready content — real company patterns, real traps</div>
+      <div class="pb-feature">Multilingual delivery planned — Hindi, Kannada, Tamil, Telugu</div>
+    </div>
+    <div class="pb-connect" style="color:var(--ai)">↑ SEEDS SABER · POWERS SKILLFORGE</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     HOW IT CONNECTS
+════════════════════════════════════════════ -->
+<section id="how" class="section">
+  <div class="section-header reveal">
+    <div class="label">HOW IT CONNECTS</div>
+    <div>
+      <h2 class="section-h2">From raw knowledge<br/>to <em>intelligent</em><br/>delivery.</h2>
+      <p class="section-intro">Four platforms. One continuous loop. Each step feeds the next. The system compounds over time.</p>
+    </div>
+  </div>
+
+  <div class="how-grid">
+    <div class="how-step reveal">
+      <div class="how-n" style="color:rgba(217,119,6,0.1)">01</div>
+      <div class="how-title">SABER captures everything.</div>
+      <div class="how-body">15 years of testing expertise — trainer sessions, PDFs, student Q&A, WhatsApp threads, lab exercises — ingested, structured into training pairs, and used to fine-tune a domain LLM on E2E GPU infrastructure. The knowledge stops living in people and starts living in the system.</div>
+      <div class="how-tag" style="color:var(--saber);border-color:rgba(217,119,6,0.3)">SABER → L1 TO L7 PIPELINE</div>
+    </div>
+    <div class="how-step reveal reveal-d1">
+      <div class="how-n" style="color:rgba(37,99,235,0.1)">02</div>
+      <div class="how-title">SkillForge amplifies trainers.</div>
+      <div class="how-body">Trainers stop writing content from scratch. SkillForge generates lecture notes, lab exercises, assessments, and slide decks in QSpiders style — and gives trainers AI tools to stay current with industry shifts. The trainer's role shifts from content creator to content curator.</div>
+      <div class="how-tag" style="color:var(--forge);border-color:rgba(37,99,235,0.3)">SKILLFORGE → CONTENT GENERATION</div>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-n" style="color:rgba(5,150,105,0.1)">03</div>
+      <div class="how-title">QANTAM serves students.</div>
+      <div class="how-body">Students interact with a QSpiders-trained AI, not a generic chatbot. Doubts resolved 24/7. Learning paths personalised to individual gaps. Mock interviews calibrated to the exact companies QSpiders students interview at — TCS, Infosys, Wipro, product startups.</div>
+      <div class="how-tag" style="color:var(--qantam);border-color:rgba(5,150,105,0.3)">QANTAM → STUDENT INTELLIGENCE</div>
+    </div>
+    <div class="how-step reveal reveal-d1">
+      <div class="how-n" style="color:rgba(124,58,237,0.1)">04</div>
+      <div class="how-title">Every interaction improves everything.</div>
+      <div class="how-body">Student questions, trainer corrections, placement outcomes — all flow back into SABER as enriched training data. The model retrains automatically when thresholds are hit. Year 2 is measurably smarter than Year 1. The knowledge compounds indefinitely.</div>
+      <div class="how-tag" style="color:var(--ai);border-color:rgba(124,58,237,0.3)">FEEDBACK LOOP → AUTO RETRAIN</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BUILD STATUS
+════════════════════════════════════════════ -->
+<section id="status" class="section status-section">
+  <div class="section-header reveal">
+    <div class="label">LIVE BUILD STATUS</div>
+    <div>
+      <h2 class="section-h2">What we're building.<br/><em>Right now.</em></h2>
+      <p class="section-intro">Honest, granular progress across all four platforms. Updated as milestones are reached.</p>
+    </div>
+  </div>
+  <div class="status-grid">
+
+    <!-- SABER -->
+    <div class="status-col reveal">
+      <div class="sc-top">
+        <div>
+          <div class="sc-name" style="color:var(--saber)">SABER</div>
+          <div class="sc-phase">Knowledge Infra</div>
+        </div>
+        <div class="sc-pct" style="color:var(--saber)">35%</div>
+      </div>
+      <div class="milestone"><div class="ms-dot done"></div><div><div class="ms-text done">7-layer architecture designed</div><div class="ms-when">Done</div></div></div>
+      <div class="milestone"><div class="ms-dot done"></div><div><div class="ms-text done">E2E GPU confirmed</div><div class="ms-when">Mar 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot now"></div><div><div class="ms-text now">Synthetic dataset generation</div><div class="ms-when">Now</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">First QLoRA training run</div><div class="ms-when">Apr 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Ollama deploy + API live</div><div class="ms-when">Apr 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Customer #2 onboarding</div><div class="ms-when">Q3 2026</div></div></div>
+    </div>
+
+    <!-- SKILLFORGE -->
+    <div class="status-col reveal reveal-d1">
+      <div class="sc-top">
+        <div>
+          <div class="sc-name" style="color:var(--forge)">SKILLFORGE</div>
+          <div class="sc-phase">Trainer Platform</div>
+        </div>
+        <div class="sc-pct" style="color:var(--forge)">20%</div>
+      </div>
+      <div class="milestone"><div class="ms-dot done"></div><div><div class="ms-text done">Product definition complete</div><div class="ms-when">Done</div></div></div>
+      <div class="milestone"><div class="ms-dot now"></div><div><div class="ms-text now">Content engine (via SABER)</div><div class="ms-when">Now</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Trainer dashboard UI</div><div class="ms-when">Q2 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">AI lab exercise generator</div><div class="ms-when">Q2 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Trainer upskilling modules</div><div class="ms-when">Q3 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Full platform launch</div><div class="ms-when">Q4 2026</div></div></div>
+    </div>
+
+    <!-- QANTAM -->
+    <div class="status-col reveal reveal-d2">
+      <div class="sc-top">
+        <div>
+          <div class="sc-name" style="color:var(--qantam)">QANTAM</div>
+          <div class="sc-phase">Student Platform</div>
+        </div>
+        <div class="sc-pct" style="color:var(--qantam)">40%</div>
+      </div>
+      <div class="milestone"><div class="ms-dot done"></div><div><div class="ms-text done">VM on E2E Networks</div><div class="ms-when">Done</div></div></div>
+      <div class="milestone"><div class="ms-dot done"></div><div><div class="ms-text done">Docker + K3s + Ollama</div><div class="ms-when">Done</div></div></div>
+      <div class="milestone"><div class="ms-dot now"></div><div><div class="ms-text now">8-service stack deployment</div><div class="ms-when">Mar 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">SABER API integration</div><div class="ms-when">Apr 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Student doubt resolution beta</div><div class="ms-when">May 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Personalised learning paths</div><div class="ms-when">Q3 2026</div></div></div>
+    </div>
+
+    <!-- AI CONTENT -->
+    <div class="status-col reveal reveal-d3">
+      <div class="sc-top">
+        <div>
+          <div class="sc-name" style="color:var(--ai)">AI CONTENT</div>
+          <div class="sc-phase">Content Engine</div>
+        </div>
+        <div class="sc-pct" style="color:var(--ai)">55%</div>
+      </div>
+      <div class="milestone"><div class="ms-dot done"></div><div><div class="ms-text done">8 course domains mapped</div><div class="ms-when">Done</div></div></div>
+      <div class="milestone"><div class="ms-dot done"></div><div><div class="ms-text done">Synthetic Q&A generator built</div><div class="ms-when">Done</div></div></div>
+      <div class="milestone"><div class="ms-dot now"></div><div><div class="ms-text now">Seed dataset — 5,000+ pairs</div><div class="ms-when">Now</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Lab exercise generator</div><div class="ms-when">Q2 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Assessment paper generator</div><div class="ms-when">Q2 2026</div></div></div>
+      <div class="milestone"><div class="ms-dot next"></div><div><div class="ms-text next">Multilingual delivery</div><div class="ms-when">Q4 2026</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     VISION
+════════════════════════════════════════════ -->
+<section class="vision-section">
+  <div class="vision-inner reveal">
+    <h2 class="vision-h">
+      Every training org<br/>
+      deserves an AI that<br/>
+      <em>actually knows</em><br/>
+      what they teach.
+    </h2>
+    <div class="vision-right">
+      <p class="vision-p">QSpiders is the reference implementation. The first organisation to run the full SABER pipeline. Everything we build here — the ingestion connectors, the training orchestrator, the serving layer — is designed for every organisation that follows.</p>
+      <p class="vision-p">The knowledge infrastructure problem isn't unique to QSpiders. It belongs to every training company, every corporate L&D team, every university department that has deep domain expertise and no system to scale it with AI.</p>
+      <p class="vision-p" style="color:#888">We're not building AI tools. We're building the layer that makes domain-specific AI possible for organisations that don't have ML teams.</p>
+    </div>
+  </div>
+
+  <div class="vision-pillars reveal">
+    <div class="pillar">
+      <div class="pi-num">01</div>
+      <div class="pi-title">DOMAIN-SPECIFIC</div>
+      <div class="pi-body">Not general intelligence. Trained on your curriculum, your style, your standards. Answers that sound like your best trainer.</div>
+    </div>
+    <div class="pillar">
+      <div class="pi-num">02</div>
+      <div class="pi-title">SELF-IMPROVING</div>
+      <div class="pi-body">Every interaction enriches the model. Feedback flows back automatically. No manual retraining required.</div>
+    </div>
+    <div class="pillar">
+      <div class="pi-num">03</div>
+      <div class="pi-title">KNOWLEDGE-PERMANENT</div>
+      <div class="pi-body">Expertise stops being a person and becomes an asset. It persists, compounds, and scales independently of any individual.</div>
+    </div>
+    <div class="pillar">
+      <div class="pi-num">04</div>
+      <div class="pi-title">ORG-AGNOSTIC</div>
+      <div class="pi-body">Built for one, designed for many. The same pipeline serves any domain — testing, finance, healthcare, law.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ROADMAP
+════════════════════════════════════════════ -->
+<section id="roadmap" class="section">
+  <div class="section-header reveal">
+    <div class="label">ROADMAP · 2026</div>
+    <div>
+      <h2 class="section-h2">What's coming,<br/><em>quarter</em><br/>by quarter.</h2>
+    </div>
+  </div>
+
+  <div class="roadmap-row reveal">
+    <div class="rm-label-col">
+      <div class="rm-q">QUARTER</div>
+      <div class="rm-period">2026</div>
+    </div>
+    <div class="rm-col">
+      <div class="rm-col-label">Q1 · JAN–MAR</div>
+      <div class="rm-item">SABER architecture complete</div>
+      <div class="rm-item">E2E GPU setup</div>
+      <div class="rm-item">Synthetic dataset generator</div>
+      <div class="rm-item">SkillForge definition</div>
+    </div>
+    <div class="rm-col now">
+      <div class="rm-col-label">Q2 · APR–JUN · NOW</div>
+      <div class="rm-item">SABER first training run</div>
+      <div class="rm-item">QANTAM API integration</div>
+      <div class="rm-item">QSpiders beta users</div>
+      <div class="rm-item">SkillForge content engine</div>
+    </div>
+    <div class="rm-col">
+      <div class="rm-col-label">Q3 · JUL–SEP</div>
+      <div class="rm-item">Feedback loop live</div>
+      <div class="rm-item">SABER Customer #2</div>
+      <div class="rm-item">SkillForge trainer dashboard</div>
+      <div class="rm-item">Personalised learning paths</div>
+    </div>
+    <div class="rm-col">
+      <div class="rm-col-label">Q4 · OCT–DEC</div>
+      <div class="rm-item">SABER standalone product</div>
+      <div class="rm-item">SkillForge full launch</div>
+      <div class="rm-item">Multilingual content</div>
+      <div class="rm-item">Placement AI — mock interviews</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-cell">
+    <div class="footer-wordmark">AI UNIT</div>
+    <div style="font-size:11px;color:var(--mid);margin-bottom:12px">Test Yantra · QSpiders</div>
+    <div class="footer-tagline">Building the AI layer that training organisations never had. Starting in Bangalore. Designed for every organisation with knowledge worth preserving.</div>
+    <div class="footer-meta">© 2026 Test Yantra. All rights reserved.<br/>Bangalore, India.</div>
+  </div>
+  <div class="footer-cell">
+    <div class="footer-col-label">PLATFORMS</div>
+    <div class="footer-product">
+      <span style="color:var(--saber);font-family:var(--sans);font-weight:700;font-size:13px">SABER</span>
+      <span style="font-size:10px;color:var(--dim)">BUILDING</span>
+    </div>
+    <div class="footer-product">
+      <span style="color:var(--forge);font-family:var(--sans);font-weight:700;font-size:13px">SKILLFORGE</span>
+      <span style="font-size:10px;color:var(--dim)">DESIGNING</span>
+    </div>
+    <div class="footer-product">
+      <span style="color:var(--qantam);font-family:var(--sans);font-weight:700;font-size:13px">QANTAM</span>
+      <span style="font-size:10px;color:var(--dim)">IN PROGRESS</span>
+    </div>
+    <div class="footer-product">
+      <span style="color:var(--ai);font-family:var(--sans);font-weight:700;font-size:13px">AI CONTENT</span>
+      <span style="font-size:10px;color:var(--dim)">ACTIVE</span>
+    </div>
+  </div>
+  <div class="footer-cell">
+    <div class="footer-col-label">INFRASTRUCTURE</div>
+    <div class="footer-product"><span>E2E Networks GPU</span><span style="font-size:9px;color:var(--qantam)">● LIVE</span></div>
+    <div class="footer-product"><span>Ollama · Llama 3.1 8B</span><span style="font-size:9px;color:var(--qantam)">● LIVE</span></div>
+    <div class="footer-product"><span>Docker + K3s</span><span style="font-size:9px;color:var(--qantam)">● CONFIGURED</span></div>
+    <div class="footer-product"><span>FastAPI + MLflow</span><span style="font-size:9px;color:var(--saber)">● BUILDING</span></div>
+    <div class="footer-product"><span>SABER Dashboard</span><span style="font-size:9px;color:var(--saber)">● BUILDING</span></div>
+  </div>
+</footer>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('up'); });
+}, {threshold: 0.08});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
